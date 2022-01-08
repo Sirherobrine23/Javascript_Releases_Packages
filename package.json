@@ -1,0 +1,35 @@
+{
+  "name": "javascript_releases_packages",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "private": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "bin": {
+    "release_packages": "./src/index.js"
+  },
+  "scripts": {
+    "start": "node ./src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sirherobrine23/Javascript_Releases_Packages.git"
+  },
+  "keywords": [
+    "deb",
+    "packages"
+  ],
+  "author": "Sirherobrine23 <srherobrine20@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Sirherobrine23/Javascript_Releases_Packages/issues"
+  },
+  "homepage": "https://github.com/Sirherobrine23/Javascript_Releases_Packages#readme",
+  "dependencies": {
+    "cli-color": "^2.0.1",
+    "js-yaml": "^4.1.0",
+    "yargs": "^17.3.1"
+  }
+}
