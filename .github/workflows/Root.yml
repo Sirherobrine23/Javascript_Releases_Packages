@@ -8,7 +8,7 @@ on:
       - released
 
 env:
-  DOCKER_ARCHS: linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6,linux/arm/v5,linux/arm/v4,linux/ppc64le,linux/s390x,linux/s390,linux/mips64,linux/mips64le,linux/mips,linux/mipsle,linux/386,linux/ppc64,linux/ppc
+  DOCKER_ARCHS: linux/amd64,linux/arm/v7,linux/arm/v5,linux/arm64/v8,linux/386,linux/ppc64le,linux/s390x,linux/mips64le
 
 jobs:
   docker:
@@ -39,7 +39,7 @@ jobs:
           console.log(version);
           fs.appendFileSync(process.env.GITHUB_ENV, `CoreVersion=${version}`)
 
-      - name: Build Bds Maneger Core (Release)
+      - name: Build (Release)
         uses: docker/build-push-action@v2
         if: github.event_name == 'release'
         with:
@@ -49,10 +49,12 @@ jobs:
             ghcr.io/sirherobrine23/javascript_releases_packages:${{ env.CoreVersion }}
           platforms: ${{ env.DOCKER_ARCHS }}
 
-      - name: Build Bds Maneger Core (Main)
+      - name: Build (Main)
         uses: docker/build-push-action@v2
         if: github.event_name != 'release'
         with:
           push: true
           tags: ghcr.io/sirherobrine23/javascript_releases_packages:nightly
+          context: ./
+          file: Deb.dockerfile
           platforms: ${{ env.DOCKER_ARCHS }}
