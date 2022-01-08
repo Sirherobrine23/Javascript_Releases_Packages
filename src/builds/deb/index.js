@@ -4,12 +4,14 @@ const fs = require("fs");
 
 function CreateControlFile(ControlConfig = {name: "javascript_releases_packages", version: "1.0.0", description: "", author: "", license: "", homepage: "", repository: "", archs: "amd64", depends: ["nodejs"], preDepends: [], recommends: [], suggests: [], conflicts: [], replaces: []}) {
   const ConfigBuild = [
-    `Package: ${ControlConfig.name}`,
+    `Package: ${String(ControlConfig.name).toLowerCase().replace(/[_\s]/g, "-")}`,
     `Version: ${ControlConfig.version}`,
     `Maintainer: ${ControlConfig.author || "Sirherobrien23 <srherobrine23@gmail.com>"}`,
-    `Architecture: ${ControlConfig.archs}`
+    `Architecture: ${ControlConfig.archs}`,
+    `Description: ${ControlConfig.description || "No Description"}`
   ];
-  return ConfigBuild.join("\n");
+  console.log(ConfigBuild.join("\n"));
+  return ConfigBuild.join("\n")+"\n";
 }
 
 module.exports.main = async function main(CliOptions = {configFile: "../config.yml", tmpDir: "../tmp", outputDir: "../dist", verbose: false}, Config = {name: "javascript_releases_packages", version: "1.0.0", description: "", author: "", license: "", homepage: "", repository: "", build_with_nexe: false, build: {deb: {build: true, archs: ["amd64", "arm64", "armhf"], depends: ["nodejs"], preDepends: [], recommends: [], suggests: [], conflicts: [], replaces: []}, rpm: { message: "Not implemented yet", build: false, depends: [] }}}) {
@@ -38,10 +40,13 @@ module.exports.main = async function main(CliOptions = {configFile: "../config.y
     fs.writeFileSync(path.resolve(CliOptions.tmpDir, "deb", "Dockerfile"), ([
       "FROM ghcr.io/sirherobrine23/javascript_releases_packages:nightly",
       `COPY ./${Arch}/ ./`,
-      "RUN dpkg-deb --build --verbose . /tmp/Package.deb"
+      "RUN dpkg-deb --build --verbose . /tmp/Package.deb",
+      "RUN rm -rf /bin /boot /dev /etc /home /lib /lib32 /lib64 /libx32 /media /mnt /opt /proc /root /run /sbin /srv /sys /usr /var || exit 0"
+    ]).join("\n"));
+    fs.writeFileSync(path.resolve(CliOptions.tmpDir, "deb", ".dockerignore"), ([
+      path.relative(path.resolve(CliOptions.tmpDir, "deb"), path.resolve(CliOptions.tmpDir, "deb", Arch, "DockerImage"))
     ]).join("\n"));
     child_process.execFileSync("docker", ["buildx", "build", ".", "--output", path.resolve(CliOptions.tmpDir, "deb", Arch, "DockerImage")], {cwd: path.resolve(CliOptions.tmpDir, "deb"), stdio: CliOptions.verbose ? "inherit" : "ignore"});
     fs.copyFileSync(path.resolve(CliOptions.tmpDir, "deb", Arch, "DockerImage", "tmp/Package.deb"), path.resolve(CliOptions.outputDir, `deb_${Config.name}_${Config.version}_${Arch}.deb`));
-    fs.rmSync(path.resolve(CliOptions.tmpDir, "deb", Arch, "DockerImage"), {recursive: true});
   }
 }
